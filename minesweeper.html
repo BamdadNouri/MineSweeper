@@ -1,3 +1,11 @@
+<style>
+table td{
+    color: aquamarine
+}
+
+</style>
+
+
 <html>
 <div id="difficulty">
     <form>
@@ -5,11 +13,16 @@
     <input type="radio" id="level2" name="level" value="2">Level 2
     <input type="radio" id="level3" name="level" value="3">Level 3
     <input type="radio" id="level4" name="level" value="4">Level 4
-    <input type="button" value="Let's play!" onclick="check()">
+    <div>
+    <input id="play" style="background-color:#40E0D0" type="button" value="Let's play!" onclick="check()">
+</div>
 </form>
 </div>
 
 <table id="table"></table>
+<span id="over" style="color:white">Game over, click "let's play" to try again.</span>
+<span id="win" style="color:white">Congrats! You won the game. Click "Let's play" and have fun one more time!</span>
+
 
 </html>
 
@@ -28,6 +41,8 @@ var nonMineCount = 0,
 var s = 8
 var table = createTable(s)
 function check(){
+    document.getElementById('over').style.color = 'white'
+    document.getElementById('win').style.color = 'white'
     var level = document.querySelector('input[name="level"]:checked').value
     switch(level){
     case '1':
@@ -60,8 +75,9 @@ document.getElementById('table').addEventListener('click', function(e){
         flag(table, e.target.id.split('-')[0], e.target.id.split('-')[1])
 
     }else{
-          if(table[parseInt(e.target.id.split('-')[0])][parseInt(e.target.id.split('-')[1])].isMine){
-            alert('GAME OVER')
+          if(resume && table[parseInt(e.target.id.split('-')[0])][parseInt(e.target.id.split('-')[1])].isMine){
+
+            document.getElementById('over').style.color = 'red'
             resume = false
         }
 
@@ -69,7 +85,8 @@ document.getElementById('table').addEventListener('click', function(e){
             openCell(table, parseInt(e.target.id.split('-')[0]), parseInt(e.target.id.split('-')[1]), s)
         }
         if(nonMineCount === 55 && resume){
-            alert('YOU WON THE GAME :))')
+
+            document.getElementById('win').style.color = 'green'
             resume = false
         }
     }
@@ -106,7 +123,7 @@ for(var i=0; i<s; i++){
     innerH += '</tr>'
 }
 document.getElementById('table').innerHTML = innerH
-document.getElementById('table').style.backgroundColor = 'black'
+document.getElementById('table').style.backgroundColor = '008080'
 var w = 0,
     h = 0
 switch(s){
@@ -115,16 +132,16 @@ switch(s){
         h = 240
         break;
     case 12:
-        w = 280
-        h = 280
+        w = 350
+        h = 350
         break;
     case 16:
-        w = 350
-        h = 300
+        w = 450
+        h = 420
         break;
     case 20:
-        w = 450
-        h = 400
+        w = 500
+        h = 470
         break;
 }
 document.getElementById('table').style.width = w
@@ -187,7 +204,7 @@ function countNeighborMine(table, x, y){
 
 function openCell(table, x, y, s){
 
-    document.getElementById( x.toString() + '-' + y.toString()).style.backgroundColor = 'blue'
+    document.getElementById( x.toString() + '-' + y.toString()).style.backgroundColor = '00CED1'
     table[x][y].isOpened = true
     document.getElementById( x.toString() + '-' + y.toString()).innerHTML = countNeighborMine(table, x, y)
     nonMineCount++
