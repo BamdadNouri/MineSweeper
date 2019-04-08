@@ -1,29 +1,55 @@
 <style>
 table td{
-    color: aquamarine
+    color: aquamarine;
+    width: 25px;
+    height: 25px;
+    border-radius: 3px;
+    text-align: center;
 }
-
+#table{
+    table-layout: fixed;
+    border-radius: 3px;
+}
+#main{
+    padding: 50px;
+    margin: 25px;
+    text-align: center;
+    font-family: avenir next;
+}
+#tbl{
+    padding: 50px;
+    
+}
+#spns{
+    text-align: center;
+}
 </style>
 
 
 <html>
-<div id="difficulty">
+<div id="main">
+
     <form>
     <input type="radio" id="level1" name="level" value="1" checked>Level 1
     <input type="radio" id="level2" name="level" value="2">Level 2
     <input type="radio" id="level3" name="level" value="3">Level 3
     <input type="radio" id="level4" name="level" value="4">Level 4
-    <div>
+    <div style="padding:20px;">
     <input id="play" style="background-color:#40E0D0" type="button" value="Let's play!" onclick="check()">
 </div>
 </form>
-</div>
 
-<table id="table"></table>
+
+<span id="strt" style="color:black; font-size:25">Please click "let's play" to start the game.</span>
+
+<div id="tbl">
+<table id="table" border="1" bordercolor="5F9EA" align="center"></table>
+</div>
+<div id="spns">
 <span id="over" style="color:white">Game over, click "let's play" to try again.</span>
 <span id="win" style="color:white">Congrats! You won the game. Click "Let's play" and have fun one more time!</span>
-
-
+</div>
+</div>
 </html>
 
 <script>
@@ -36,6 +62,38 @@ table td{
 
     }
 }
+
+var difInfo = {
+    '1': {
+        's': 8
+    },
+    '2': {
+        's': 12
+    },
+    '3':{
+        's': 16
+    },
+    '4':{
+        's': 20
+    },
+    8:{
+        'mines': 10,
+        'nonMines': 54
+    },
+    12:{
+        'mines': 25,
+        'nonMines': 119
+    },
+    16:{
+        'mines': 55,
+        'nonMines': 201
+    },
+    20:{
+        'mines': 95,
+        'nonMines': 305
+    }
+}
+
 var nonMineCount = 0,
     resume = false
 var s = 8
@@ -43,23 +101,12 @@ var table = createTable(s)
 function check(){
     document.getElementById('over').style.color = 'white'
     document.getElementById('win').style.color = 'white'
+    document.getElementById('strt').style.color = 'white'
     var level = document.querySelector('input[name="level"]:checked').value
-    switch(level){
-    case '1':
-        s = 8
-        break;
-    case '2':
-        s = 12
-        break;
-    case '3':
-        s = 16
-        break;
-    case '4':
-        s = 20
-        break;
-    }   
-resume = true
-table = createTable(s)
+    s = difInfo[level]['s']
+
+    resume = true
+    table = createTable(s)
 
 }
 
@@ -71,12 +118,13 @@ table = createTable(s)
 document.getElementById('table').addEventListener('click', function(e){
 
 
-    if(e.shiftKey && resume){
+    if((e.shiftKey || e.button === 2) && resume){
         flag(table, e.target.id.split('-')[0], e.target.id.split('-')[1])
 
     }else{
           if(resume && table[parseInt(e.target.id.split('-')[0])][parseInt(e.target.id.split('-')[1])].isMine){
 
+            showAllMines(table, s)
             document.getElementById('over').style.color = 'red'
             resume = false
         }
@@ -84,7 +132,7 @@ document.getElementById('table').addEventListener('click', function(e){
         if(!table[parseInt(e.target.id.split('-')[0])][parseInt(e.target.id.split('-')[1])].isOpened && resume){
             openCell(table, parseInt(e.target.id.split('-')[0]), parseInt(e.target.id.split('-')[1]), s)
         }
-        if(nonMineCount === 55 && resume){
+        if(nonMineCount === difInfo[s]['nonMines'] && resume){
 
             document.getElementById('win').style.color = 'green'
             resume = false
@@ -137,7 +185,7 @@ switch(s){
         break;
     case 16:
         w = 450
-        h = 420
+        h = 450
         break;
     case 20:
         w = 500
@@ -147,6 +195,11 @@ switch(s){
 document.getElementById('table').style.width = w
 document.getElementById('table').style.height = h
 
+for(var i=0; i<s; i++){
+    for(var j=0; j<s; j++){
+        document.getElementById(i.toString() + '-' + j.toString()).innerHTML = ' '
+    }
+}
 
 return addMine(tbl, s)
 
@@ -155,22 +208,8 @@ return addMine(tbl, s)
 function addMine(table, s){
 
     var mineC = 0,
-        mineLimit = 0
+        mineLimit = difInfo[s]['mines']
 
-switch(s){
-    case 8:
-        mineLimit = 10
-        break;
-    case 12:
-        mineLimit = 25
-        break;
-    case 16:
-        mineLimit = 55
-        break;
-    case 20:
-        mineLimit = 95
-        break;
-}
 
     while(mineC<mineLimit){
         var x = Math.floor(Math.random() * s),
@@ -225,10 +264,21 @@ function openCell(table, x, y, s){
 function flag(table, x, y){
 
     if(!table[x][y].isOpened){
-    document.getElementById(x.toString() + '-' + y.toString()).style.backgroundColor = 'green'
+    document.getElementById(x.toString() + '-' + y.toString()).style.backgroundColor = '#9ACD32'
     table[x][y].isFlaged = true
     }
 
 
+}
+
+function showAllMines(table, s){
+
+    for(var i=0; i<s; i++){
+        for(var j=0; j<s; j++){
+            if(table[i][j].isMine){
+                document.getElementById(i.toString() + '-' + j.toString()).style.backgroundColor = 'red'
+            }
+        }
+    }
 }
 </script>
